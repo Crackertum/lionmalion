@@ -21,7 +21,22 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-top: 10px;">
+<style>
+    .dashboard-grid {
+        display: grid; 
+        grid-template-columns: 1.5fr 1fr; 
+        gap: 30px; 
+        margin-top: 10px;
+    }
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+</style>
+
+<div class="dashboard-grid">
     <div class="card animated" style="animation-delay: 0.3s;">
         <h3 class="serif"><i class="fas fa-bookmark" style="color: var(--uda-yellow);"></i> Pinned Announcements</h3>
         <div style="margin-top: 25px;">

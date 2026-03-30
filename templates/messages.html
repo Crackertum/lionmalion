@@ -3,9 +3,47 @@
 {% block header %}Secure Communications{% endblock %}
 
 {% block content %}
-<div class="card animated" style="padding: 0; display: grid; grid-template-columns: 320px 1fr; height: 700px; overflow: hidden; border: none; background: transparent; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+<style>
+    .messages-grid {
+        display: grid; 
+        grid-template-columns: 320px 1fr; 
+        height: 700px; 
+        overflow: hidden; 
+        border: none; 
+        background: transparent; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    @media (max-width: 1024px) {
+        .messages-grid {
+            grid-template-columns: 1fr;
+            height: calc(100vh - 150px);
+        }
+        .contacts-sidebar {
+            display: {{ 'none' if active_contact is not none else 'flex' }};
+            width: 100% !important;
+        }
+        .chat-area {
+            display: {{ 'flex' if active_contact is not none else 'none' }};
+        }
+        .back-to-contacts {
+            display: flex !important;
+        }
+    }
+    .back-to-contacts {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: var(--uda-green);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="card animated messages-grid" style="padding: 0;">
     <!-- Contacts Sidebar -->
-    <div style="background: var(--white); border-right: 1px solid var(--gray-med); display: flex; flex-direction: column; border-top-left-radius: 15px; border-bottom-left-radius: 15px; width: 320px; flex-shrink: 0;">
+    <div class="contacts-sidebar" style="background: var(--white); border-right: 1px solid var(--gray-med); display: flex; flex-direction: column; border-top-left-radius: 15px; border-bottom-left-radius: 15px; width: 320px; flex-shrink: 0;">
         <div style="padding: 25px; border-bottom: 1px solid var(--gray-med);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 class="serif" style="font-size: 1.3rem;">Contacts</h3>
@@ -72,9 +110,13 @@
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 
     <!-- Chat Area -->
-    <div style="background: var(--white); display: flex; flex-direction: column; border-top-right-radius: 15px; border-bottom-right-radius: 15px;">
+    <div class="chat-area" style="background: var(--white); display: flex; flex-direction: column; border-top-right-radius: 15px; border-bottom-right-radius: 15px;">
         {% if active_contact is not none %}
-            <div style="padding: 20px 40px; border-bottom: 1px solid var(--gray-med); display: flex; justify-content: space-between; align-items: center;">
+            <div style="padding: 20px 40px; border-bottom: 1px solid var(--gray-med); display: flex; flex-direction: column;">
+                <a href="{{ url_for('messages') }}" class="back-to-contacts">
+                    <i class="fas fa-chevron-left"></i> BACK TO CONTACTS
+                </a>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                 {% set chat_partner = contacts|selectattr('user.id', 'equalto', active_contact)|first %}
                 <div>
                     <h3 class="serif" style="font-size: 1.3rem; margin: 0;">
