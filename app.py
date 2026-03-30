@@ -11,6 +11,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flask_talisman import Talisman
+from whitenoise import WhiteNoise
 from agora_token_builder import RtcTokenBuilder
 
 from models import db, User, Announcement, Message, AuditLog
@@ -63,6 +64,9 @@ def create_app(config_name='development'):
     
     login_manager.login_view = 'login'
     login_manager.login_message_category = 'info'
+    
+    # Static files with WhiteNoise
+    app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
     
     return app
 
