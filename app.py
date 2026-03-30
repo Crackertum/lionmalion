@@ -59,7 +59,8 @@ def create_app(config_name='development'):
     talisman.init_app(
         app, 
         content_security_policy=csp,
-        force_https=app.config.get('TALISMAN_FORCE_HTTPS', True)
+        force_https=app.config.get('TALISMAN_FORCE_HTTPS', True),
+        content_security_policy_report_only=False
     )
     
     login_manager.login_view = 'login'
@@ -67,6 +68,18 @@ def create_app(config_name='development'):
     
     # Static files with WhiteNoise
     app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
+    
+    # Initialize database on first run (SQLite compatibility)
+    with app.app_context():
+        db.create_all()
+        # Create initial admin if no users exist
+        if not User.query.first():
+            admin_pw = bcrypt.generate_password_hash('admin123').decode('utf-8')
+            admin = User(username='admin', email='admin@lionmalion.local', 
+                         password_hash=admin_pw, name='System Administrator', role='admin')
+            db.session.add(admin)
+            db.session.commit()
+            print(">>> INITIAL HIGH-COMMAND ADMIN CREATED: admin / admin123")
     
     return app
 
