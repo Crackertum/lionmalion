@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block title %}Login{% endblock %}
+
+{% block login_content %}
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--black) 50%, #222 100%); padding: 20px; position: relative; overflow: hidden;">
+    <!-- Abstract Wheelbarrow Pattern in background -->
+    <div style="position: absolute; opacity: 0.03; font-size: 30rem; rotate: -20deg; right: -100px; bottom: -100px; color: var(--uda-yellow); pointer-events: none;">
+        <i class="fas fa-wheelbarrow"></i>
+    </div>
+
+    <div class="card animated" style="max-width: 480px; width: 100%; border: none; padding: 50px; border-radius: 20px; background: var(--white); box-shadow: 0 30px 60px rgba(0,0,0,0.5);">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="width: 100px; height: 100px; background: var(--uda-yellow); color: var(--black); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 10px 20px rgba(255,215,0,0.3);">
+                <i class="fas fa-landmark"></i>
+            </div>
+            <h1 class="serif" style="font-size: 2.2rem; color: var(--black); margin-bottom: 5px;">Lion Malion</h1>
+            <p style="color: var(--uda-green); font-weight: 700; letter-spacing: 2px;">UDA HUB • COORDINATION</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="margin-bottom: 30px;">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> {{ form.username_email.label.text }}</label>
+                {{ form.username_email(placeholder="Official Credentials") }}
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> {{ form.password.label.text }}</label>
+                {{ form.password(placeholder="••••••••") }}
+            </div>
+            
+            <button type="submit" class="btn btn-yellow" style="width: 100%; padding: 18px; border-radius: 12px; font-size: 1.1rem; justify-content: center; margin-top: 10px; font-weight: 700;">
+                Secure Authentication <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div style="margin-top: 40px; text-align: center; border-top: 1px solid var(--gray-med); padding-top: 30px;">
+            <p style="font-size: 0.85rem; color: #777;">Private Government/Party Access Only</p>
+            <p style="font-size: 0.85rem; color: var(--uda-green); font-weight: 600; margin-top: 5px;">Contact Party HQ for credentials</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

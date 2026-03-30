@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Flask & Databases
+instance/
+lion_malion_v2.db
+
+# Logs
+logs/
+*.log
+
+# Agora Project
+agora_web_quickstart/node_modules/
+
+# Uploads & Media
+static/uploads/messages/
+static/profile_pics/
+
+# IDEs
+.vscode/
+.idea/
+.gemini/
+.agents/

@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}403 - Forbidden Access{% endblock %}
+{% block content %}
+<div class="card animated" style="text-align: center; padding: 100px 40px; border: none; box-shadow: 0 40px 80px rgba(0,0,0,0.1);">
+    <div style="font-size: 8rem; font-weight: 900; line-height: 1; color: #ef4444; text-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);">403</div>
+    <h2 class="serif" style="font-size: 2rem; margin-top: 20px; color: var(--black);">ACCESS DENIED</h2>
+    <p style="opacity: 0.6; max-width: 450px; margin: 20px auto 40px; line-height: 1.6;">Your clearance level is insufficient to access this communication protocol. All unauthorized attempts are logged for review by higher command.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-black" style="padding: 18px 40px; border-radius: 12px; font-weight: 800; letter-spacing: 1px;">RETURN TO AUTHORIZED SECTOR</a>
+</div>
+{% endblock %}

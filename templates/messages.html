@@ -1,0 +1,403 @@
+{% extends "layout.html" %}
+{% block title %}Messages{% endblock %}
+{% block header %}Secure Communications{% endblock %}
+
+{% block content %}
+<div class="card animated" style="padding: 0; display: grid; grid-template-columns: 320px 1fr; height: 700px; overflow: hidden; border: none; background: transparent; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+    <!-- Contacts Sidebar -->
+    <div style="background: var(--white); border-right: 1px solid var(--gray-med); display: flex; flex-direction: column; border-top-left-radius: 15px; border-bottom-left-radius: 15px; width: 320px; flex-shrink: 0;">
+        <div style="padding: 25px; border-bottom: 1px solid var(--gray-med);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 class="serif" style="font-size: 1.3rem;">Contacts</h3>
+                <button onclick="toggleNewChatModal()" class="btn" style="width: 35px; height: 35px; padding: 0; border-radius: 10px; background: var(--uda-yellow); color: var(--black); justify-content: center; box-shadow: 0 4px 10px rgba(255,215,0,0.3);">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div style="position: relative;">
+                <input type="text" id="contactSearch" onkeyup="filterContacts()" placeholder="Search members..." style="width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid var(--gray-med); background: var(--gray-light); font-size: 0.9rem; outline: none; transition: var(--transition);">
+                <i class="fas fa-search" style="position: absolute; left: 15px; top: 13px; opacity: 0.3;"></i>
+            </div>
+        </div>
+        <div id="contactsList" style="flex: 1; overflow-y: auto;">
+            {% for c in contacts %}
+            <a href="{{ url_for('messages', contact=c.user.id) }}" class="contact-item" data-name="{{ c.user.name|lower }}" style="display: flex; align-items: center; gap: 15px; padding: 15px 25px; text-decoration: none; color: inherit; border-bottom: 1px solid rgba(0,0,0,0.02); transition: var(--transition); background: {{ 'rgba(255, 215, 0, 0.08)' if active_contact == c.user.id else 'transparent' }}; border-left: 4px solid {{ 'var(--uda-yellow)' if active_contact == c.user.id else 'transparent' }}">
+                <div style="width: 42px; height: 42px; background: {{ 'var(--uda-green)' if c.user.id == 0 else 'var(--black)' }}; color: {{ 'var(--white)' if c.user.id == 0 else 'var(--uda-yellow)' }}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem;">
+                    {% if c.user.id == 0 %}
+                        <i class="fas fa-bullhorn"></i>
+                    {% else %}
+                        {{ c.user.name[0] }}
+                    {% endif %}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 700; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.user.name }}</span>
+                        {% if c.unread > 0 %}
+                            <span style="background: var(--uda-yellow); color: var(--black); font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 50%;">{{ c.unread }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 500;">{{ c.user.role|upper }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="newChatModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="card animated" style="width: 400px; padding: 0; overflow: hidden; border: none; box-shadow: 0 30px 60px rgba(0,0,0,0.3);">
+            <div style="padding: 25px; background: var(--black); color: var(--uda-yellow); display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="serif" style="margin: 0; font-size: 1.2rem;">Start New Coordination</h3>
+                <i class="fas fa-times" onclick="toggleNewChatModal()" style="cursor: pointer; opacity: 0.7;"></i>
+            </div>
+            <div style="padding: 20px;">
+                <input type="text" id="newUserSearch" onkeyup="filterNewUsers()" placeholder="Search members to message..." style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--gray-med); margin-bottom: 20px; outline: none;">
+                <div id="newUsersList" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px;">
+                    <!-- Users will be populated here via template or could be static for first version -->
+                    {% for u in all_users %}
+                    <a href="{{ url_for('messages', contact=u.id) }}" style="display: flex; align-items: center; gap: 12px; padding: 12px; text-decoration: none; color: inherit; border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background='transparent'">
+                        <div style="width: 35px; height: 35px; background: var(--black); color: var(--uda-yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">{{ u.name[0] }}</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem;">{{ u.name }}</div>
+                            <div style="font-size: 0.7rem; opacity: 0.5;">{{ u.role|upper }}</div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Agora SDK integration -->
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+
+    <!-- Chat Area -->
+    <div style="background: var(--white); display: flex; flex-direction: column; border-top-right-radius: 15px; border-bottom-right-radius: 15px;">
+        {% if active_contact is not none %}
+            <div style="padding: 20px 40px; border-bottom: 1px solid var(--gray-med); display: flex; justify-content: space-between; align-items: center;">
+                {% set chat_partner = contacts|selectattr('user.id', 'equalto', active_contact)|first %}
+                <div>
+                    <h3 class="serif" style="font-size: 1.3rem; margin: 0;">
+                        {% if active_contact == 0 %}
+                            <i class="fas fa-broadcast-tower" style="color: var(--uda-green);"></i> UDA Network Broadcast
+                        {% else %}
+                            {{ chat_partner.user.name if chat_partner else 'MEMBER' }}
+                        {% endif %}
+                    </h3>
+                    <div style="font-size: 0.75rem; color: var(--uda-green); font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                        <span style="width: 6px; height: 6px; background: var(--uda-green); border-radius: 50%; display: inline-block;"></span>
+                        SECURE PROTOCOL ACTIVE
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button onclick="initiateSecureCall('VOICE')" class="btn" style="padding: 10px; background: var(--gray-light); color: var(--black); border-radius: 10px; transition: var(--transition);"><i class="fas fa-phone"></i></button>
+                    <button onclick="initiateSecureCall('VIDEO')" class="btn" style="padding: 10px; background: var(--gray-light); color: var(--black); border-radius: 10px; transition: var(--transition);"><i class="fas fa-video"></i></button>
+                    <button onclick="showInfo()" class="btn" style="padding: 10px; background: var(--gray-light); color: var(--black); border-radius: 10px; transition: var(--transition);"><i class="fas fa-info-circle"></i></button>
+                </div>
+            </div>
+
+            <!-- Live RTC Overlays -->
+            <div id="callOverlay" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 1500; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                <!-- Remote Video Stream -->
+                <div id="remote-video" style="position: absolute; inset: 0; background: var(--black); z-index: 1;"></div>
+                
+                <!-- Local Video Preview (Picture in Picture) -->
+                <div id="local-video" style="position: absolute; right: 30px; top: 30px; width: 180px; height: 120px; background: #333; z-index: 10; border-radius: 15px; border: 2px solid var(--uda-yellow); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></div>
+
+                <div class="animated" style="text-align: center; z-index: 20; background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; backdrop-filter: blur(5px);">
+                    <div id="callAvatar" style="width: 100px; height: 100px; background: var(--black); border: 4px solid var(--uda-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; color: var(--uda-yellow);">
+                        {{ chat_partner.user.name[0] if chat_partner and chat_partner.user.name else 'M' }}
+                    </div>
+                    <h2 class="serif" id="callTypeLabel" style="font-size: 1.4rem; letter-spacing: 2px;">SECURE VOICE CALL</h2>
+                    <p style="opacity: 0.8; margin-top: 10px; font-weight: 700;" id="callStatusText">CONNECTING VIA LION SATELLITE...</p>
+                    
+                    <div style="margin-top: 40px; display: flex; gap: 30px; justify-content: center;">
+                        <div style="text-align: center;">
+                            <div id="muteBtn" onclick="toggleMute()" style="width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; cursor: pointer;"><i class="fas fa-microphone"></i></div>
+                            <span style="font-size: 0.7rem; opacity: 0.5;">Mute</span>
+                        </div>
+                        <div onclick="endCall()" style="text-align: center; cursor: pointer;">
+                            <div style="width: 70px; height: 70px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);"><i class="fas fa-phone-slash" style="font-size: 1.8rem;"></i></div>
+                            <span style="font-size: 0.7rem; font-weight: 700;">END CALL</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div id="videoBtn" onclick="toggleVideo()" style="width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; cursor: pointer;"><i class="fas fa-video"></i></div>
+                            <span style="font-size: 0.7rem; opacity: 0.5;">Camera</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Info Modal -->
+            <div id="infoModal" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 1600; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+                <div class="card animated" style="width: 350px; padding: 0; overflow: hidden; border: none; box-shadow: 0 40px 80px rgba(0,0,0,0.4);">
+                    <div style="padding: 30px; background: var(--black); text-align: center; color: var(--uda-yellow);">
+                        <div style="width: 80px; height: 80px; background: var(--uda-yellow); color: var(--black); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 800;">
+                            {{ chat_partner.user.name[0] if chat_partner and chat_partner.user.name else 'M' }}
+                        </div>
+                        <h3 class="serif" style="font-size: 1.4rem;">{{ chat_partner.user.name if chat_partner else 'Member Profile' }}</h3>
+                        <p style="font-size: 0.75rem; opacity: 0.6; font-weight: 800; letter-spacing: 1px;">LEVEL: {{ chat_partner.user.role|upper if chat_partner else 'N/A' }}</p>
+                    </div>
+                    <div style="padding: 25px; background: white;">
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div>
+                                <label style="font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase;">Direct Contact</label>
+                                <div style="font-weight: 600;">{{ chat_partner.user.email if chat_partner else 'Private' }}</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase;">Operator Since</label>
+                                <div style="font-weight: 600;">{{ chat_partner.user.created_at.strftime('%b %Y') if chat_partner and chat_partner.user.created_at else 'Jan 2026' }}</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase;">Clearance Level</label>
+                                <div style="color: var(--uda-green); font-weight: 800;">VERIFIED COORDINATOR</div>
+                            </div>
+                        </div>
+                        <button onclick="closeInfo()" class="btn btn-black" style="width: 100%; margin-top: 30px; justify-content: center; border-radius: 10px;">CLOSE DOSSIER</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: var(--gray-light);">
+                {% for msg in thread %}
+                    <div style="max-width: 65%; padding: 15px 20px; border-radius: 18px; position: relative; {{ 'align-self: flex-end; background: var(--uda-yellow); color: var(--black); border-bottom-right-radius: 4px; box-shadow: 0 5px 15px rgba(255,215,0,0.2);' if msg.sender_id == current_user.id else 'align-self: flex-start; background: var(--white); border-bottom-left-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);' }}">
+                        {% if active_contact == 0 and msg.sender_id != current_user.id %}
+                            <div style="font-size: 0.7rem; font-weight: 800; color: var(--uda-green); margin-bottom: 5px;">{{ msg.sender.name }}</div>
+                        {% endif %}
+                        
+                        {% if msg.file_path %}
+                            <div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-file-alt" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 0.8rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ msg.original_filename }}</div>
+                                    <a href="{{ url_for('static', filename='uploads/messages/' + msg.file_path) }}" target="_blank" style="font-size: 0.7rem; color: var(--uda-green); font-weight: 800; text-decoration: none;">DOWNLOAD FILE</a>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div style="line-height: 1.5; font-size: 0.95rem;">{{ msg.content }}</div>
+                        <div style="font-size: 0.65rem; opacity: 0.4; margin-top: 8px; text-align: right;">
+                            {{ msg.timestamp.strftime('%H:%M') }} {% if msg.sender_id == current_user.id %}<i class="fas fa-check-double" style="color: var(--uda-green); margin-left: 5px;"></i>{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div style="padding: 30px 40px; background: var(--white);">
+                <form method="POST" enctype="multipart/form-data" id="msgForm" style="display: flex; gap: 15px; align-items: flex-end;">
+                    {{ form.hidden_tag() }}
+                    <div style="display: none;">{{ form.recipient_id(value=active_contact) }}</div>
+                    <div style="display: none;">{{ form.attachment(id="fileInput") }}</div>
+                    <div style="flex: 1; position: relative;">
+                        {{ form.content(placeholder="Message " ~ ('all members' if active_contact == 0 else (contacts|selectattr('user.id', 'equalto', active_contact)|map(attribute='user.name')|first)) ~ "...", style="width:100%; height: 55px; border-radius:15px; border: 2px solid var(--gray-med); padding: 15px 80px 15px 20px; font-family: inherit; resize: none; transition: var(--transition);") }}
+                        <div style="position: absolute; right: 15px; top: 15px; display: flex; gap: 15px; font-size: 1.2rem; opacity: 0.3;">
+                            <i class="far fa-smile" style="cursor: pointer;"></i>
+                            <i class="fas fa-paperclip" onclick="document.getElementById('fileInput').click()" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'" id="clipIcon"></i>
+                        </div>
+                        <div id="fileInfo" style="position: absolute; bottom: -20px; left: 10px; font-size: 0.7rem; color: var(--uda-green); font-weight: 700; display: none;"></div>
+                    </div>
+                    <button type="submit" class="btn btn-green" style="height: 55px; width: 55px; justify-content: center; border-radius: 15px; background: var(--black); color: var(--uda-yellow);">
+                        <i class="fas fa-paper-plane" style="font-size: 1.2rem;"></i>
+                    </button>
+                </form>
+            </div>
+
+    <script>
+    let rtc = {
+        client: null,
+        localAudioTrack: null,
+        localVideoTrack: null,
+    };
+
+    let options = {
+        appId: null,
+        channel: null,
+        token: null,
+        uid: 0,
+    };
+
+    function toggleNewChatModal() {
+        const modal = document.getElementById('newChatModal');
+        modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+        if(modal.style.display === 'flex') document.getElementById('newUserSearch').focus();
+    }
+
+    function filterContacts() {
+        const input = document.getElementById('contactSearch');
+        const filter = input.value.toLowerCase();
+        const items = document.getElementsByClassName('contact-item');
+        
+        for (let i = 0; i < items.length; i++) {
+            const name = items[i].getAttribute('data-name');
+            if (name.indexOf(filter) > -1) {
+                items[i].style.display = "flex";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    function filterNewUsers() {
+        const input = document.getElementById('newUserSearch');
+        const filter = input.value.toLowerCase();
+        const items = document.getElementById('newUsersList').getElementsByTagName('a');
+        
+        for (let i = 0; i < items.length; i++) {
+            const name = items[i].textContent.toLowerCase();
+            if (name.indexOf(filter) > -1) {
+                items[i].style.display = "flex";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    // --- REAL RTC LOGIC ---
+    async function initiateSecureCall(type) {
+        document.getElementById('callOverlay').style.display = 'flex';
+        document.getElementById('callTypeLabel').textContent = type === 'VIDEO' ? 'SECURE VIDEO STREAM' : 'SECURE VOICE CALL';
+        document.getElementById('callStatusText').textContent = 'ACQUIRING SECURE TOKEN...';
+        
+        // Define channel name based on active coordination ID
+        options.channel = "coord_channel_{{ active_contact }}";
+        
+        try {
+            // 1. Fetch Token from Backend
+            const response = await fetch(`/api/get_agora_token?channelName=${options.channel}`);
+            const data = await response.json();
+            
+            if (data.error) throw new Error(data.error);
+            
+            options.token = data.token;
+            options.appId = data.appId;
+            
+            document.getElementById('callStatusText').textContent = 'INITIALIZING ENCRYPTION ENGINE...';
+            
+            // 2. Initialize Client
+            rtc.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+            
+            // Handle Remote Users
+            rtc.client.on("user-published", async (user, mediaType) => {
+                await rtc.client.subscribe(user, mediaType);
+                if (mediaType === "video") {
+                    document.getElementById('callAvatar').style.display = 'none';
+                    user.videoTrack.play("remote-video");
+                }
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                }
+                document.getElementById('callStatusText').textContent = '00:01 - SECURE CONNECTION LIVE';
+                document.getElementById('callStatusText').style.color = 'var(--uda-green)';
+            });
+
+            // 3. Join Channel
+            await rtc.client.join(options.appId, options.channel, options.token, options.uid);
+            
+            // 4. Create and Publish Local Tracks
+            rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+            if (type === 'VIDEO') {
+                rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
+                rtc.localVideoTrack.play("local-video");
+                await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
+                document.getElementById('videoBtn').style.background = 'var(--uda-green)';
+            } else {
+                await rtc.client.publish([rtc.localAudioTrack]);
+                document.getElementById('local-video').style.display = 'none';
+            }
+            
+            document.getElementById('callStatusText').textContent = 'WAITING FOR RECIPIENT...';
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('callStatusText').textContent = 'ERROR: SECURE HANDSHAKE FAILED';
+            document.getElementById('callStatusText').style.color = '#ef4444';
+            setTimeout(endCall, 3000);
+        }
+    }
+
+    async function endCall() {
+        document.getElementById('callStatusText').textContent = 'TERMINATING RELAY...';
+        document.getElementById('callStatusText').style.color = 'white';
+        
+        if (rtc.localAudioTrack) {
+            rtc.localAudioTrack.stop();
+            rtc.localAudioTrack.close();
+        }
+        if (rtc.localVideoTrack) {
+            rtc.localVideoTrack.stop();
+            rtc.localVideoTrack.close();
+        }
+        
+        if (rtc.client) {
+            await rtc.client.leave();
+        }
+        
+        setTimeout(() => {
+            document.getElementById('callOverlay').style.display = 'none';
+            document.getElementById('callAvatar').style.display = 'flex';
+            document.getElementById('local-video').style.display = 'block';
+            document.getElementById('videoBtn').style.background = 'rgba(255,255,255,0.1)';
+            document.getElementById('muteBtn').style.background = 'rgba(255,255,255,0.1)';
+        }, 800);
+    }
+
+    function toggleMute() {
+        if (!rtc.localAudioTrack) return;
+        const isMuted = rtc.localAudioTrack.muted;
+        rtc.localAudioTrack.setMuted(!isMuted);
+        document.getElementById('muteBtn').style.background = !isMuted ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)';
+        document.getElementById('muteBtn').innerHTML = !isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+    }
+
+    function toggleVideo() {
+        if (!rtc.localVideoTrack) return;
+        const isVideoOff = rtc.localVideoTrack.muted;
+        rtc.localVideoTrack.setMuted(!isVideoOff);
+        document.getElementById('videoBtn').style.background = !isVideoOff ? 'rgba(255,255,255,0.1)' : 'var(--uda-green)';
+    }
+
+    function showInfo() {
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    function closeInfo() {
+        document.getElementById('infoModal').style.display = 'none';
+    }
+
+    document.getElementById('fileInput').onchange = function() {
+        const info = document.getElementById('fileInfo');
+        const icon = document.getElementById('clipIcon');
+        if (this.files && this.files.length > 0) {
+            info.textContent = "📎 " + this.files[0].name;
+            info.style.display = "block";
+            icon.style.opacity = "1";
+            icon.style.color = "var(--uda-green)";
+        } else {
+            info.style.display = "none";
+            icon.style.color = "inherit";
+            icon.style.opacity = "0.3";
+        }
+    };
+    </script>
+        {% else %}
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center;">
+                <div style="width: 150px; height: 150px; background: var(--gray-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; font-size: 4rem; color: var(--uda-yellow);">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="serif">Select Coordination Stream</h3>
+                <p style="opacity: 0.5; max-width: 300px; margin-top: 10px;">Connect with individual members or access the official party broadcast channel.</p>
+                <div style="margin-top: 30px; display: flex; gap: 15px;">
+                    <div style="text-align: center; width: 100px;">
+                        <div style="width: 50px; height: 50px; background: var(--uda-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;"><i class="fas fa-broadcast-tower"></i></div>
+                        <span style="font-size: 0.7rem; font-weight: 600;">Broadcasts</span>
+                    </div>
+                    <div style="text-align: center; width: 100px;">
+                        <div style="width: 50px; height: 50px; background: var(--black); color: var(--uda-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;"><i class="fas fa-user-friends"></i></div>
+                        <span style="font-size: 0.7rem; font-weight: 600;">1-on-1 Chats</span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

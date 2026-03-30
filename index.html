@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lion Malion | Private Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b3a6b;
+            --navy-dark: #0f2545;
+            --gold: #c9a84c;
+            --gold-light: #e0c87d;
+            --white: #ffffff;
+            --gray-light: #f4f4f4;
+            --danger: #ff4d4d;
+            --success: #2ecc71;
+            --sidebar-width: 260px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--navy);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(27, 58, 107, 0.98), rgba(27, 58, 107, 0.98)),
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(201, 168, 76, 0.03) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(201, 168, 76, 0.03) 40px);
+        }
+
+        h1, h2, h3, h4, .cinzel {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+            color: var(--gold);
+        }
+
+        /* Utils */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .gap-10 { gap: 10px; }
+        .gap-20 { gap: 20px; }
+
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            padding: 20px;
+            position: fixed;
+            top: 0; left: 0; z-index: 1000;
+            background: inherit;
+        }
+
+        .login-card {
+            background-color: var(--navy-dark);
+            border: 1px solid var(--gold);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .logo-placeholder {
+            width: 80px; height: 80px;
+            border: 2px solid var(--gold);
+            margin: 0 auto 30px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            font-family: 'Cinzel', serif;
+            font-size: 2rem; color: var(--gold);
+        }
+        .logo-placeholder::after { content: '♌'; font-size: 2.5rem; }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--gold-light); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.3);
+            color: white; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; transition: var(--transition);
+        }
+        .form-group input:focus { outline: none; border-color: var(--gold); background: rgba(255,255,255,0.1); }
+
+        .btn-primary {
+            width: 100%; padding: 15px; background: var(--gold); color: var(--navy-dark); border: none;
+            font-family: 'Cinzel', serif; font-weight: bold; font-size: 1rem; cursor: pointer; transition: var(--transition);
+            margin-top: 10px; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Main Layout */
+        #app-container { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 100vh; }
+        
+        aside {
+            background-color: var(--navy-dark); border-right: 1px solid rgba(201, 168, 76, 0.3);
+            padding: 30px 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+        }
+
+        .nav-link {
+            padding: 15px 30px; display: flex; align-items: center; color: rgba(255,255,255,0.6);
+            text-decoration: none; font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 1px;
+            border-left: 3px solid transparent; transition: var(--transition); cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active { background: rgba(201, 168, 76, 0.1); color: var(--gold); border-left-color: var(--gold); }
+
+        main { padding: 40px; width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; overflow-y: auto; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        }
+
+        /* Components */
+        .card { background: rgba(15, 37, 69, 0.6); border: 1px solid rgba(201, 168, 76, 0.15); padding: 25px; backdrop-filter: blur(10px); }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card .value { font-size: 3rem; font-family: 'Cinzel', serif; margin-top: 10px; }
+
+        .badge { padding: 4px 10px; border-radius: 2px; font-size: 0.7rem; font-family: 'Cinzel', serif; font-weight: bold; }
+        .badge-urgent { background: var(--danger); color: white; }
+        .badge-general { background: var(--gold); color: var(--navy-dark); }
+        .badge-private { background: #9b59b6; color: white; }
+
+        /* Announcement Styles */
+        .announcement-item { border-bottom: 1px solid rgba(201, 168, 76, 0.1); padding: 20px 0; }
+        .announcement-item:last-child { border-bottom: none; }
+        .announcement-meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 8px; }
+
+        /* Messaging Styles */
+        .messaging-container { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 200px); border: 1px solid rgba(201, 168, 76, 0.2); }
+        .contacts-list { border-right: 1px solid rgba(201, 168, 76, 0.2); overflow-y: auto; }
+        .contact-item { padding: 15px 20px; border-bottom: 1px solid rgba(201, 168, 76, 0.1); cursor: pointer; transition: var(--transition); }
+        .contact-item:hover, .contact-item.active { background: rgba(201, 168, 76, 0.1); }
+        .chat-area { display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message-bubble { max-width: 70%; padding: 12px 18px; border-radius: 10px; position: relative; line-height: 1.4; }
+        .message-sent { align-self: flex-end; background: var(--gold); color: var(--navy-dark); border-bottom-right-radius: 2px; }
+        .message-received { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 2px; }
+        .chat-input-area { padding: 20px; border-top: 1px solid rgba(201, 168, 76, 0.2); display: flex; gap: 10px; }
+
+        /* Notification Dot */
+        .notif-btn { position: relative; font-size: 1.5rem; cursor: pointer; color: var(--gold); }
+        .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+
+        /* Admin Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; border-bottom: 1px solid var(--gold); font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--gold); }
+        td { padding: 15px; border-bottom: 1px solid rgba(201, 168, 76, 0.1); font-size: 0.95rem; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page-fade { animation: fadeIn 0.4s ease-out; }
+
+        @media (max-width: 900px) {
+            #app-container { grid-template-columns: 1fr; }
+            aside { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="logo-placeholder"></div>
+            <h1>Lion Malion</h1>
+            <p style="margin-bottom: 25px; font-style: italic; opacity: 0.8;">Secure Coordination Portal</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Verify Credentials</button>
+                <div id="login-error" class="hidden" style="color: var(--danger); margin-top: 15px; font-style: italic;">
+                    Access Denied: Unrecognized credentials.
+                </div>
+            </form>
+            <p class="not-registered" style="margin-top: 25px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+                To request access, contact the administrator.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Platform Application -->
+    <div id="app-container" class="hidden">
+        <aside>
+            <div style="padding: 0 30px 40px; text-align: center;">
+                <h2 style="font-size: 1.1rem; border-bottom: 1px solid var(--gold); padding-bottom: 15px;">Lion Malion</h2>
+            </div>
+            <nav class="flex-col">
+                <div class="nav-link active" onclick="showPage('dashboard')">Dashboard</div>
+                <div class="nav-link" onclick="showPage('announcements')">Announcements</div>
+                <div class="nav-link" onclick="showPage('messages')">Messages</div>
+                <div class="nav-link admin-only hidden" onclick="showPage('admin')">Admin Panel</div>
+                <div class="nav-link" onclick="showPage('settings')">Settings</div>
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <div class="nav-link" onclick="logout()" style="color: var(--danger);">Sign Out</div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main>
+            <header>
+                <h2 id="page-title">Dashboard</h2>
+                <div class="flex items-center gap-20">
+                    <div class="notif-btn" id="notif-toggle">
+                        🔔 <span class="notif-badge" id="global-notif-count">0</span>
+                    </div>
+                    <div class="user-profile flex items-center gap-10">
+                        <div style="text-align: right;">
+                            <div class="cinzel" id="user-display-name" style="font-size: 0.9rem;">...</div>
+                            <div id="user-display-role" style="font-size: 0.75rem; opacity: 0.6; text-transform: uppercase;">...</div>
+                        </div>
+                        <div id="user-avatar" style="width: 45px; height: 45px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; background: rgba(201, 168, 76, 0.1);">
+                            ?
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Screens -->
+            <div id="page-content">
+                <!-- Dashboard -->
+                <section id="page-dashboard" class="page-fade">
+                    <div class="stat-grid">
+                        <div class="card stat-card">
+                            <h4>Unread Messages</h4>
+                            <div class="value" id="stat-unread">0</div>
+                        </div>
+                        <div class="card stat-card">
+                            <h4>New Announcements</h4>
+                            <div class="value" id="stat-announcements">0</div>
+                        </div>
+                        <div class="card stat-card">
+                            <h4>Active Projects</h4>
+                            <div class="value" id="stat-projects">04</div>
+                        </div>
+                    </div>
+                    <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <div class="card">
+                            <h3>Pinned Announcements</h3>
+                            <div id="pinned-announcements-list" style="margin-top: 15px;">
+                                <p style="opacity: 0.5; font-style: italic;">No pinned items.</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3>Recent Activity</h3>
+                            <div id="activity-log-list" style="margin-top: 15px; font-size: 0.9rem;">
+                                <!-- Logs here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Announcements -->
+                <section id="page-announcements" class="page-fade hidden">
+                    <div class="flex justify-between items-center" style="margin-bottom: 25px;">
+                        <h3>Bulletin Board</h3>
+                        <button class="btn-primary admin-only hidden" style="width: auto; padding: 10px 20px;" onclick="openModal('announcement-modal')">+ Create New</button>
+                    </div>
+                    <div class="card" id="announcements-container">
+                        <!-- List -->
+                    </div>
+                </section>
+
+                <!-- Messages -->
+                <section id="page-messages" class="page-fade hidden">
+                    <div class="messaging-container card">
+                        <div class="contacts-list" id="contacts-list">
+                            <!-- Contacts -->
+                        </div>
+                        <div class="chat-area">
+                            <div id="chat-header" style="padding: 15px 20px; border-bottom: 1px solid rgba(201, 168, 76, 0.2); font-weight: bold;">
+                                Select a member to start messaging
+                            </div>
+                            <div class="chat-messages" id="chat-messages">
+                                <!-- Bubbles -->
+                            </div>
+                            <div class="chat-input-area" id="chat-controls">
+                                <input type="text" id="chat-input" placeholder="Type your message..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.2); color: white; padding: 10px;">
+                                <button class="btn-primary" style="width: auto; margin: 0; padding: 10px 20px;" onclick="sendMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Admin Panel -->
+                <section id="page-admin" class="page-fade hidden">
+                    <div class="stat-grid">
+                        <div class="card">
+                            <h3>Add New Member</h3>
+                            <form id="add-user-form" style="margin-top: 15px;">
+                                <div class="form-group"><label>Full Name</label><input type="text" id="new-name" required></div>
+                                <div class="form-group"><label>Username</label><input type="text" id="new-username" required></div>
+                                <div class="form-group"><label>Role</label>
+                                    <select id="new-role"><option value="member">Member</option><option value="admin">Administrator</option></select>
+                                </div>
+                                <button type="submit" class="btn-primary">Register Member</button>
+                            </form>
+                        </div>
+                        <div class="card" style="grid-column: span 2;">
+                            <h3>Platform Members</h3>
+                            <table id="members-table">
+                                <thead><tr><th>Name</th><th>Role</th><th>Last Login</th><th>Actions</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section id="page-settings" class="page-fade hidden">
+                    <div class="card" style="max-width: 600px;">
+                        <h3>Profile Settings</h3>
+                        <form id="settings-form" style="margin-top: 20px;">
+                            <div class="form-group"><label>Display Name</label><input type="text" id="set-display-name"></div>
+                            <div class="form-group"><label>New Password</label><input type="password" id="set-new-password" placeholder="Leave blank to keep current"></div>
+                            <button type="submit" class="btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Storage Modal (Reusable) -->
+    <div id="modal-container" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 500px; width: 90%;">
+            <h3 id="modal-title">Create Announcement</h3>
+            <div id="modal-body" style="margin-top: 20px;">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="flex justify-between" style="margin-top: 25px;">
+                <button class="btn-primary" style="background: transparent; color: white; border: 1px solid white;" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" style="width: auto;" id="modal-save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data Layer ---
+        const DEFAULT_DATA = {
+            users: [
+                { id: '1', username: 'admin', password: 'admin123', role: 'admin', name: 'Lion Administrator', lastLogin: null, active: true },
+                { id: '2', username: 'member1', password: 'pass123', role: 'member', name: 'James Wilson', lastLogin: null, active: true }
+            ],
+            announcements: [
+                { id: 'a1', title: 'Welcome to Lion Malion', content: 'Our new platform is live for all authorized personnel.', type: 'General', date: new Date().toISOString(), author: 'Admin', pinned: true, reads: [] }
+            ],
+            messages: [],
+            logs: [{ user: 'System', action: 'Platform initialized', time: new Date().toISOString() }],
+            notifications: []
+        };
+
+        let state = JSON.parse(localStorage.getItem('lion_malion_db')) || DEFAULT_DATA;
+        let currentUser = JSON.parse(localStorage.getItem('lion_malion_session')) || null;
+        let activeChatId = null;
+
+        function saveData() {
+            localStorage.setItem('lion_malion_db', JSON.stringify(state));
+        }
+
+        function logAction(action) {
+            state.logs.unshift({ user: currentUser ? currentUser.name : 'System', action, time: new Date().toISOString() });
+            if (state.logs.length > 50) state.logs.pop();
+            saveData();
+            updateDashboard();
+        }
+
+        // --- Auth ---
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value.toLowerCase();
+            const p = document.getElementById('password').value;
+            const user = state.users.find(x => x.username === u && x.password === p && x.active);
+
+            if (user) {
+                user.lastLogin = new Date().toISOString();
+                currentUser = user;
+                localStorage.setItem('lion_malion_session', JSON.stringify(user));
+                saveData();
+                logAction('Logged into platform');
+                initApp();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            logAction('Logged out');
+            localStorage.removeItem('lion_malion_session');
+            window.location.reload();
+        }
+
+        // --- Navigation ---
+        function showPage(pageId) {
+            const screens = ['dashboard', 'announcements', 'messages', 'admin', 'settings'];
+            screens.forEach(s => document.getElementById(`page-${s}`).classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            event.target.classList.add('active');
+            document.getElementById('page-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            
+            if (pageId === 'dashboard') updateDashboard();
+            if (pageId === 'announcements') renderAnnouncements();
+            if (pageId === 'messages') renderMessaging();
+            if (pageId === 'admin') renderAdmin();
+            if (pageId === 'settings') renderSettings();
+        }
+
+        // --- Core App Logic ---
+        function initApp() {
+            if (!currentUser) return;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
+            // Update UI
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('user-display-role').innerText = currentUser.role;
+            document.getElementById('user-avatar').innerText = currentUser.name.charAt(0);
+            
+            if (currentUser.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+
+            updateDashboard();
+            updateNotifs();
+        }
+
+        function updateDashboard() {
+            const unread = state.messages.filter(m => m.to === currentUser.id && !m.read).length;
+            document.getElementById('stat-unread').innerText = unread.toString().padStart(2, '0');
+            document.getElementById('stat-announcements').innerText = state.announcements.length.toString().padStart(2, '0');
+            
+            // Pinned
+            const pinnedList = document.getElementById('pinned-announcements-list');
+            const pinned = state.announcements.filter(a => a.pinned);
+            pinnedList.innerHTML = pinned.length ? '' : '<p style="opacity: 0.5; font-style: italic;">No pinned items.</p>';
+            pinned.forEach(a => {
+                pinnedList.innerHTML += `<div style="padding: 10px; border-left: 2px solid var(--gold); background: rgba(255,255,255,0.05); margin-bottom: 10px;">
+                    <strong style="color: var(--gold)">[${a.type}]</strong> ${a.title}
+                </div>`;
+            });
+
+            // Logs
+            const logList = document.getElementById('activity-log-list');
+            logList.innerHTML = '';
+            state.logs.slice(0, 5).forEach(log => {
+                logList.innerHTML += `<div style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+                    <span style="color: var(--gold)">${log.user}</span> ${log.action} 
+                    <div style="font-size: 0.7rem; opacity: 0.4;">${new Date(log.time).toLocaleString()}</div>
+                </div>`;
+            });
+        }
+
+        // --- Announcements Logic ---
+        function renderAnnouncements() {
+            const container = document.getElementById('announcements-container');
+            container.innerHTML = '';
+            state.announcements.sort((a,b) => b.pinned - a.pinned || new Date(b.date) - new Date(a.date)).forEach(a => {
+                container.innerHTML += `
+                    <div class="announcement-item">
+                        <div class="flex justify-between">
+                            <span class="badge badge-${a.type.toLowerCase()}">${a.type}</span>
+                            <span class="announcement-meta">${new Date(a.date).toLocaleDateString()}</span>
+                        </div>
+                        <h4 style="margin: 10px 0;">${a.pinned ? '📌 ' : ''}${a.title}</h4>
+                        <p style="opacity: 0.8; line-height: 1.6;">${a.content}</p>
+                        <div class="flex justify-between items-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.8rem; opacity: 0.5;">Posted by ${a.author}</span>
+                            ${currentUser.role === 'admin' ? `<button onclick="deleteAnnouncement('${a.id}')" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.8rem;">Delete</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- Messaging Logic ---
+        function renderMessaging() {
+            const list = document.getElementById('contacts-list');
+            list.innerHTML = '';
+            state.users.filter(u => u.id !== currentUser.id && u.active).forEach(u => {
+                const unread = state.messages.filter(m => m.from === u.id && m.to === currentUser.id && !m.read).length;
+                list.innerHTML += `
+                    <div class="contact-item ${activeChatId === u.id ? 'active' : ''}" onclick="selectChat('${u.id}')">
+                        <div class="flex justify-between items-center">
+                            <strong>${u.name}</strong>
+                            ${unread > 0 ? `<span class="badge" style="background: var(--gold); color: black;">${unread}</span>` : ''}
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.6;">${u.role}</div>
+                    </div>
+                `;
+            });
+            if (activeChatId) updateChat();
+        }
+
+        function selectChat(id) {
+            activeChatId = id;
+            state.messages.forEach(m => { if(m.from === id && m.to === currentUser.id) m.read = true; });
+            saveData();
+            renderMessaging();
+            updateChat();
+            updateNotifs();
+        }
+
+        function updateChat() {
+            const u = state.users.find(x => x.id === activeChatId);
+            document.getElementById('chat-header').innerText = `Conversation with ${u.name}`;
+            const box = document.getElementById('chat-messages');
+            box.innerHTML = '';
+            const thread = state.messages.filter(m => 
+                (m.from === currentUser.id && m.to === activeChatId) || 
+                (m.from === activeChatId && m.to === currentUser.id)
+            ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            thread.forEach(m => {
+                const isSent = m.from === currentUser.id;
+                box.innerHTML += `<div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}">
+                    ${m.content}
+                    <div style="font-size: 0.6rem; opacity: 0.5; margin-top: 5px; text-align: right;">${new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            if (!input.value.trim() || !activeChatId) return;
+            state.messages.push({
+                id: Date.now().toString(),
+                from: currentUser.id,
+                to: activeChatId,
+                content: input.value,
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+            input.value = '';
+            saveData();
+            updateChat();
+        }
+
+        // --- Admin Logic ---
+        function renderAdmin() {
+            const tbody = document.querySelector('#members-table tbody');
+            tbody.innerHTML = '';
+            state.users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="${!u.active ? 'opacity: 0.5; text-decoration: line-through;' : ''}">${u.name}</td>
+                        <td>${u.role}</td>
+                        <td style="font-size: 0.8rem; opacity: 0.6;">${u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'Never'}</td>
+                        <td>
+                            <button onclick="toggleUserStatus('${u.id}')" class="badge" style="background: ${u.active ? 'var(--gold)' : 'gray'}; border: none; cursor: pointer;">${u.active ? 'Active' : 'Locked'}</button>
+                            ${u.id !== currentUser.id ? `<button onclick="deleteUser('${u.id}')" style="margin-left: 10px; color: var(--danger); background: none; border: none; cursor: pointer;">Delete</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('add-user-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const payload = {
+                id: Date.now().toString(),
+                name: document.getElementById('new-name').value,
+                username: document.getElementById('new-username').value.toLowerCase(),
+                password: Math.random().toString(36).slice(-8), // Gen random pass
+                role: document.getElementById('new-role').value,
+                lastLogin: null,
+                active: true
+            };
+            if (state.users.find(u => u.username === payload.username)) return alert('Username exists');
+            state.users.push(payload);
+            saveData();
+            logAction(`Added new member: ${payload.name}`);
+            alert(`User Created! Password: ${payload.password}`);
+            e.target.reset();
+            renderAdmin();
+        });
+
+        function toggleUserStatus(id) {
+            const u = state.users.find(x => x.id === id);
+            u.active = !u.active;
+            logAction(`${u.active ? 'Activated' : 'Deactivated'} member: ${u.name}`);
+            saveData();
+            renderAdmin();
+        }
+
+        function deleteUser(id) {
+            if (!confirm('Permanent delete this member?')) return;
+            state.users = state.users.filter(u => u.id !== id);
+            saveData();
+            logAction('Deleted a member');
+            renderAdmin();
+        }
+
+        // --- Settings ---
+        function renderSettings() {
+            document.getElementById('set-display-name').value = currentUser.name;
+        }
+
+        document.getElementById('settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('set-display-name').value;
+            const pass = document.getElementById('set-new-password').value;
+            
+            const user = state.users.find(u => u.id === currentUser.id);
+            user.name = name;
+            if (pass) user.password = pass;
+            
+            currentUser = user;
+            localStorage.setItem('lion_malion_session', JSON.stringify(user));
+            saveData();
+            logAction('Updated profile settings');
+            alert('Settings updated successfully');
+            initApp();
+        });
+
+        // --- Global Helpers ---
+        function updateNotifs() {
+            const count = state.messages.filter(m => m.to === currentUser.id && !m.read).length;
+            document.getElementById('global-notif-count').innerText = count;
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('modal-container');
+            const body = document.getElementById('modal-body');
+            const saveBtn = document.getElementById('modal-save-btn');
+            modal.classList.remove('hidden');
+
+            if (type === 'announcement-modal') {
+                body.innerHTML = `
+                    <div class="form-group"><label>Title</label><input type="text" id="m-title"></div>
+                    <div class="form-group"><label>Type</label><select id="m-type"><option>General</option><option>Urgent</option><option>Privacy</option></select></div>
+                    <div class="form-group"><label>Message</label><textarea id="m-content" rows="4"></textarea></div>
+                    <div class="flex items-center gap-10"><input type="checkbox" id="m-pinned"> <label>Pin to Dashboard</label></div>
+                `;
+                saveBtn.onclick = () => {
+                    state.announcements.push({
+                        id: Date.now().toString(),
+                        title: document.getElementById('m-title').value,
+                        type: document.getElementById('m-type').value,
+                        content: document.getElementById('m-content').value,
+                        pinned: document.getElementById('m-pinned').checked,
+                        date: new Date().toISOString(),
+                        author: currentUser.name
+                    });
+                    saveData();
+                    logAction('Created new announcement');
+                    closeModal();
+                    renderAnnouncements();
+                };
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        function deleteAnnouncement(id) {
+            state.announcements = state.announcements.filter(a => a.id !== id);
+            saveData();
+            logAction('Deleted an announcement');
+            renderAnnouncements();
+        }
+
+        // Init
+        if (currentUser) initApp();
+
+    </script>
+</body>
+</html>

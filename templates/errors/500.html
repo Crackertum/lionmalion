@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}500 - Critical System Error{% endblock %}
+{% block content %}
+<div class="card animated" style="text-align: center; padding: 100px 40px; border: none; box-shadow: 0 40px 80px rgba(0,0,0,0.1);">
+    <div style="font-size: 8rem; font-weight: 900; line-height: 1; color: #ef4444; opacity: 0.8;">500</div>
+    <h2 class="serif" style="font-size: 2rem; margin-top: 20px; color: var(--black);">CRITICAL NODE FAILURE</h2>
+    <p style="opacity: 0.6; max-width: 450px; margin: 20px auto 40px; line-height: 1.6;">The communication relay has encountered a critical internal failure. Higher command has been notified and technical crews are working to restore the uplink. Try again shortly.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-black" style="padding: 18px 40px; border-radius: 12px; font-weight: 800; letter-spacing: 1px;">ATTEMPT CONTEXT RECOVERY</a>
+</div>
+{% endblock %}

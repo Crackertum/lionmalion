@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}404 - Command Not Found{% endblock %}
+{% block content %}
+<div class="card animated" style="text-align: center; padding: 100px 40px; border: none; box-shadow: 0 40px 80px rgba(0,0,0,0.1);">
+    <div style="font-size: 8rem; font-weight: 900; line-height: 1; color: var(--uda-yellow); text-shadow: 0 10px 20px rgba(255,215,0,0.2);">404</div>
+    <h2 class="serif" style="font-size: 2rem; margin-top: 20px; color: var(--black);">UNAUTHORIZED ACCESS POINT</h2>
+    <p style="opacity: 0.6; max-width: 450px; margin: 20px auto 40px; line-height: 1.6;">The coordination node you are attempting to reach does not exist or has been decommissioned by higher command. Verify your destination protocols.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-black" style="padding: 18px 40px; border-radius: 12px; font-weight: 800; letter-spacing: 1px;">RETURN TO COMMAND CENTER</a>
+</div>
+{% endblock %}
