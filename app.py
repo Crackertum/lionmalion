@@ -334,6 +334,24 @@ def toggle_user(user_id):
         log_activity(f'{"Reinstated" if user.is_active else "Suspended"} operator access: {user.username}')
     return redirect(url_for('admin'))
 
+@app.route('/admin/reset_password/<int:user_id>')
+@login_required
+def admin_reset_password(user_id):
+    if current_user.role != 'admin': abort(403)
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('Unauthorized: Cannot reset own high-command credentials.', 'danger')
+        return redirect(url_for('admin'))
+    
+    # Generate new temporary password
+    temp_pass = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+    user.password_hash = bcrypt.generate_password_hash(temp_pass).decode('utf-8')
+    db.session.commit()
+    
+    log_activity(f'Administrator reset credentials for operator: {user.username}')
+    flash(f'Credentials Reset Success! New Temporary Password: {temp_pass}', 'success')
+    return redirect(url_for('admin'))
+
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():

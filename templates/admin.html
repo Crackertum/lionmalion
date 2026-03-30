@@ -95,11 +95,15 @@
                                 {{ 'ACCOUNT ACTIVE' if u.is_active else 'ACCESS REVOKED' }}
                             </div>
                         </td>
-                        <td style="padding: 15px 20px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; text-align: right;">
+                        <td style="padding: 15px 20px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; text-align: right; white-space: nowrap;">
                             {% if u.id != current_user.id %}
+                            <a href="{{ url_for('admin_reset_password', user_id=u.id) }}" class="btn" style="padding: 10px 15px; border-radius: 10px; background: white; border: 1px solid var(--gray-med); color: var(--uda-yellow-dark); font-weight: 700; transition: var(--transition); margin-right: 10px;" onclick="return confirm('WARNING: Are you sure you want to reset this operator\'s high-command credentials?')">
+                                <i class="fas fa-key" style="margin-right: 5px;"></i>
+                                RESET
+                            </a>
                             <a href="{{ url_for('toggle_user', user_id=u.id) }}" class="btn" style="padding: 10px 15px; border-radius: 10px; background: white; border: 1px solid var(--gray-med); color: {{ '#ef4444' if u.is_active else 'var(--uda-green)' }}; font-weight: 700; transition: var(--transition);">
                                 <i class="fas fa-{{ 'lock' if u.is_active else 'lock-open' }}" style="margin-right: 5px;"></i>
-                                {{ 'LOCK' if u.is_active else 'GRANT ACCESS' }}
+                                {{ 'LOCK' if u.is_active else 'GRANT' }}
                             </a>
                             {% endif %}
                         </td>
